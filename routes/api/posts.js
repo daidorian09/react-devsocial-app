@@ -11,17 +11,20 @@ const Profile = require('../../models/Profile');
 // Validation
 const validatePostInput = require('../../validation/post');
 
+
+module.exports = (app) => {
+
 // @route   GET api/posts/test
 // @desc    Tests post route
 // @access  Public
-router.get('/test', (req, res) => res.json({
+app.get('/test', (req, res) => res.json({
   msg: 'Posts Works'
 }));
 
 // @route   GET api/posts
 // @desc    Get posts
 // @access  Public
-router.get('/', (req, res) => {
+app.get('/', (req, res) => {
   Post.find()
     .sort({
       date: -1
@@ -35,7 +38,7 @@ router.get('/', (req, res) => {
 // @route   GET api/posts/:id
 // @desc    Get post by id
 // @access  Public
-router.get('/:id', (req, res) => {
+app.get('/:id', (req, res) => {
   Post.findById(req.params.id)
     .then(post => res.json(post))
     .catch(err =>
@@ -48,7 +51,7 @@ router.get('/:id', (req, res) => {
 // @route   POST api/posts
 // @desc    Create post
 // @access  Private
-router.post(
+app.post(
   '/',
   passport.authenticate('jwt', {
     session: false
@@ -79,7 +82,7 @@ router.post(
 // @route   DELETE api/posts/:id
 // @desc    Delete post
 // @access  Private
-router.delete(
+app.delete(
   '/:id',
   passport.authenticate('jwt', {
     session: false
@@ -114,7 +117,7 @@ router.delete(
 // @route   POST api/posts/like/:id
 // @desc    Like post
 // @access  Private
-router.post(
+app.post(
   '/like/:id',
   passport.authenticate('jwt', {
     session: false
@@ -153,7 +156,7 @@ router.post(
 // @route   POST api/posts/unlike/:id
 // @desc    Unlike post
 // @access  Private
-router.post(
+app.post(
   '/unlike/:id',
   passport.authenticate('jwt', {
     session: false
@@ -196,7 +199,7 @@ router.post(
 // @route   POST api/posts/comment/:id
 // @desc    Add comment to post
 // @access  Private
-router.post(
+app.post(
   '/comment/:id',
   passport.authenticate('jwt', {
     session: false
@@ -237,7 +240,7 @@ router.post(
 // @route   DELETE api/posts/comment/:id/:comment_id
 // @desc    Remove comment from post
 // @access  Private
-router.delete(
+app.delete(
   '/comment/:id/:comment_id',
   passport.authenticate('jwt', {
     session: false
@@ -273,5 +276,4 @@ router.delete(
       }));
   }
 );
-
-module.exports = router;
+}

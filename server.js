@@ -33,11 +33,12 @@ app.use(passport.initialize());
 // Passport Config
 require('./config/passport')(passport);
 
-// Use Routes
-app.use('/api/users', users);
-app.use('/api/profile', profile);
-app.use('/api/posts', posts);
+
+// Bind all api endpoints
+require('./routes')(app);
 
 const port = process.env.PORT || config.port;
 
 app.listen(port, () => logger.info(`Server running on port ${port}`));
+
+module.exports = app;

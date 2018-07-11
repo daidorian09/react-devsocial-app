@@ -5,6 +5,8 @@ import propTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {confirmActivation} from "../../actions/authentication/auth"
 
+import ConfirmationTokenNotFound from '../Error/ConfirmationTokenNotFound'
+
 class ConfirmActivation extends Component {
 
     constructor(props) {
@@ -18,10 +20,8 @@ class ConfirmActivation extends Component {
 
 
     componentDidMount() {
+
         const confirmationToken = this.props.match.params.token
-        if (!confirmationToken) {
-            this.props.history.push("/confirmation-token-not-found")
-        }
 
         const data = {
             token: confirmationToken.trim()
@@ -48,16 +48,15 @@ class ConfirmActivation extends Component {
 
   render() {
 
-    const { errors, auth } = this.state
+    const { errors, token } = this.state
 
+    const content = errors.token && (
+        <ConfirmationTokenNotFound errorMessage = {errors.token} />
+    )
 
     return (
         <div>
-            <h5>{
-                errors && (
-                    <p>Fuck</p>
-                )
-            }</h5>
+            {content}            
       </div>
     )
   }

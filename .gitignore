@@ -72,5 +72,6 @@ typings/
 # Serverless directories
 .serverless
 
-# Log output
-.logs/
+# Logs output
+.logs/error/
+.logs/exception/

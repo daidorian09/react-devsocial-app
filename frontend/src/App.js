@@ -1,5 +1,6 @@
 import React, {
-  Component
+  Component,
+  Fragment
 } from 'react';
 import './';
 
@@ -66,35 +67,27 @@ class App extends Component {
     return (
       <Provider store = {store}>
         <Router>
-          <div className = "App">
-            <Navbar/>
-              <Route exact path = "/" component = {Index}/>
-              <div className="container">
-              <Route exact path = "/signup" component = {SignUp}/>
-              <Route exact path = "/login" component = {Login}/>
-              <Route exact path="/confirm-activation/:token" component={ConfirmActivation}/>
-              <Route exact path="/developers" component={Profiles}/>
-              <Route exact path="/developers/:handle" component={Profile}/>
-              <Switch>         
-                <PrivateRoute exact path = "/dashboard" component = {Dashboard}/>         
-              </Switch>
-              <Switch>         
-                <PrivateRoute exact path = "/create-profile" component = {CreateProfile}/>         
-              </Switch>
-              <Switch>         
-                <PrivateRoute exact path = "/edit-profile" component = {EditProfile}/>         
-              </Switch>
-              <Switch>         
-                <PrivateRoute exact path = "/add-experience" component = {AddExperience}/>         
-              </Switch>
-              <Switch>         
-                <PrivateRoute exact path = "/add-education" component = {AddEducation}/>         
-              </Switch>
-              <Route exact path="/not-found" component={NotFound} /> 
-              <Route exact path="/confirmation-token-not-found" component={ActivationTokenNotFound} />               
-              </div>
-            <Footer/>
-          </div>      
+          <Fragment>
+            <div className = "App">
+              <Navbar/>
+                <Route exact path = "/" component = {Index}/>
+                <div className="container">
+                <Switch> <Route exact path = "/signup" component = {SignUp}/>
+                <Route exact path = "/login" component = {Login}/>
+                <Route exact path="/confirm-activation/:token" component={ConfirmActivation} />
+                <Route exact path="/developers" component={Profiles}/>
+                <Route exact path="/developers/:handle" component={Profile}/> 
+                <PrivateRoute exact path = "/dashboard" component = {Dashboard}/>
+                <PrivateRoute exact path = "/create-profile" component = {CreateProfile}/>
+                <PrivateRoute exact path = "/edit-profile" component = {EditProfile}/>  
+                <PrivateRoute exact path = "/add-experience" component = {AddExperience}/>
+                <PrivateRoute exact path = "/add-education" component = {AddEducation}/>    
+                <Route  path="*" component={NotFound} />      
+                </Switch>
+                </div>
+              <Footer/>
+            </div>  
+          </Fragment>    
         </Router>
       </Provider>
     );
