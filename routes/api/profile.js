@@ -13,12 +13,6 @@ const Profile = require('../../models/Profile');
 // Load User Model
 const User = require('../../models/User');
 
-// @route   GET api/profile/test
-// @desc    Tests profile route
-// @access  Public
-router.get('/test', (req, res) => res.json({
-  msg: 'Profile Works'
-}));
 
 // @route   GET api/profile
 // @desc    Get current users profile
@@ -132,7 +126,7 @@ router.post(
     // Check Validation
     if (!isValid) {
       // Return any errors with 400 status
-      return res.status(400).json(errors);
+      return res.status(422).json(errors);
     }
 
     // Get fields
@@ -164,8 +158,9 @@ router.post(
     }).then(profile => {
       if (profile) {
         // Update
+        profileFields.modifiedAt = Date.now()
         Profile.findOneAndUpdate({
-          user: req.user.id
+          user: req.user.id,
         }, {
           $set: profileFields
         }, {
@@ -208,7 +203,7 @@ router.post(
     // Check Validation
     if (!isValid) {
       // Return any errors with 400 status
-      return res.status(400).json(errors);
+      return res.status(422).json(errors);
     }
 
     Profile.findOne({
@@ -338,11 +333,23 @@ router.delete(
     session: false
   }),
   (req, res) => {
-    Profile.findOneAndRemove({
-      user: req.user.id
+    let updatedFields = {
+      isActive: false,
+      modifiedAt: Date.now()
+    }
+    Profile.findOneAndUpdate({
+      user: req.user.id,
+    }, {
+      $set: updatedFields
+    }, {
+      new: true
     }).then(() => {
-      User.findOneAndRemove({
+      User.findOneAndUpdate({
         _id: req.user.id
+      }, {
+        $set: updatedFields
+      }, {
+        new: true
       }).then(() =>
         res.json({
           success: true

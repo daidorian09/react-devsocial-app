@@ -12,13 +12,15 @@ const logger = winston.createLogger({
         }),
         new winston.transports.File({
             filename: 'logs/error/error.log',
-            level: 'error'
+            level: 'error',
+            timestamp: true
         }),
     ],
     exceptionHandlers: [
         new winston.transports.File({
             filename: 'logs/exception/exceptions.log',
-            level: 'alert'
+            level: 'alert',
+            timestamp: true
         })
     ],
     exitOnError: false

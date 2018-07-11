@@ -15,12 +15,23 @@ const UserSchema = new Schema({
     type: String,
     required: true
   },
+  salt :{
+    type : String    
+  },
   avatar: {
     type: String
   },
-  date: {
+  isActive:{
+    type : Boolean,
+    default : false
+  },
+  createdAt:{
     type: Date,
     default: Date.now
+  },
+  modifiedAt : {
+    type : Date,
+    default : null
   }
 });
 

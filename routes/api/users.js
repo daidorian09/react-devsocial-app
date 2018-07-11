@@ -5,25 +5,27 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const keys = require('../../config/keys');
 const passport = require('passport');
+const generateToken = require("../../utils/token/tokenGenerator")
+
+const sendEmail = require('../../utils/notification/emailNotification')
 
 // Load Input Validation
 const validateRegisterInput = require('../../validation/register');
 const validateLoginInput = require('../../validation/login');
+const validateTokenInput = require('../../validation/token')
 
 // Load User model
 const User = require('../../models/User');
+const UserToken = require("../../models/UserToken")
 
-// @route   GET api/users/test
-// @desc    Tests users route
-// @access  Public
-router.get('/test', (req, res) => res.json({
-  msg: 'Users Works'
-}));
+const setTokenExpiration = require('../../utils/date/setTokenExpiration')
+const dateSubtractor = require('../../utils/date/dateSubtractor')
+
 
 // @route   GET api/users/register
 // @desc    Register user
 // @access  Public
-router.post('/register', (req, res) => {
+router.post('/signup', (req, res) => {
   const {
     errors,
     isValid
@@ -58,9 +60,33 @@ router.post('/register', (req, res) => {
         bcrypt.hash(newUser.password, salt, (err, hash) => {
           if (err) throw err;
           newUser.password = hash;
+          newUser.salt = salt
           newUser
             .save()
-            .then(user => res.status(201).json(user))
+            .then(user => {
+              const data  = {
+                email : user.email,
+                token : generateToken()
+              }
+              const expirationDate = setTokenExpiration()
+              const userToken = new UserToken({
+                user : user.id,
+                token : data.token,
+                expiredAt : expirationDate
+              })
+              userToken.save()
+              .then(userToken => {
+                if(!userToken){
+                  const errors = {
+                    error : "Internal server error"
+                  }
+                  return res.status(500).json({
+                  })
+                }
+              })
+              sendEmail(data)
+              res.status(201).json(user)
+            })
             .catch(err => console.log(err));
         });
       });
@@ -79,7 +105,7 @@ router.post('/login', (req, res) => {
 
   // Check Validation
   if (!isValid) {
-    return res.status(400).json(errors);
+    return res.status(422).json(errors);
   }
 
   const email = req.body.email;
@@ -93,6 +119,11 @@ router.post('/login', (req, res) => {
     if (!user) {
       errors.email = 'User not found';
       return res.status(404).json(errors);
+    }
+
+    if(!user.isActive){
+      errors.isActive = "User is not ready yet"
+      return res.status(400).json(errors)
     }
 
     // Check Password
@@ -109,12 +140,12 @@ router.post('/login', (req, res) => {
         jwt.sign(
           payload,
           keys.secretOrKey, {
-            expiresIn: 3600
+            expiresIn: keys.tokenExpiration
           },
           (err, token) => {
             res.json({
               success: true,
-              token: 'Bearer ' + token
+              token: `Bearer ${token}`
             });
           }
         );
@@ -142,5 +173,67 @@ router.get(
     });
   }
 );
+
+// @route   Post api/users/confirmactionvation
+// @desc    Return token activation result
+// @access  Public
+
+router.post('/confirmactivation', (req, res) => {
+  const {
+    errors,
+    isValid
+  } = validateTokenInput(req.body);
+
+  // Check Validation
+  if (!isValid) {
+    return res.status(422).json(errors);
+  }
+
+  UserToken.findOneAndUpdate({
+      token: req.body.token,
+      isActive: true
+    }, {
+      $set: { isActive: false, modifiedAt: Date.now()}
+    }, {
+      new: true
+    })
+    .populate('user', ['_id'])
+    .then(userToken => {
+      if (!userToken) {
+        errors.token = 'Token not found';
+        return res.status(404).json(errors);
+      }
+
+      const tokenExpiration = userToken.expiredAt
+
+      const isTokenActive = dateSubtractor(tokenExpiration)
+
+      if (!isTokenActive) {
+        errors.token = "Token is expired"
+        return res.status(400).json(errors)
+      }
+
+      User.findOneAndUpdate({
+        _id: userToken.user.id,
+        isActive: false
+      }, {
+        $set: {
+          modifiedAt: Date.now(),
+          isActive: true
+        }
+      }, {
+        new: true
+      }).then(user => {
+        if (!user) {
+          errors.token = "User not found"
+          return res.status(400).json(errors)
+        }
+
+        return res.status(200).json({
+          token: user.isActive
+        })
+      }).catch(err => res.status(500).json(err))
+    }).catch(err => res.status(500).json(err))
+});
 
 module.exports = router;

@@ -4,7 +4,7 @@ export default () => {
   return (
     <div>
       <footer className="bg-dark text-white mt-5 p-4 text-center">
-      Copyright &copy; {new Date().getFullYear()} Socail Media App for Developers
+      Copyright &copy; {new Date().getFullYear()} Social Media App for Developers
       </footer>
     </div>
   )

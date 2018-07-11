@@ -111,9 +111,17 @@ const ProfileSchema = new Schema({
       type: String
     }
   },
-  date: {
+  isActive:{
+    type : Boolean,
+    default : true
+  },
+  createdAt:{
     type: Date,
     default: Date.now
+  },
+  modifiedAt : {
+    type : Date,
+    default : null
   }
 });
 

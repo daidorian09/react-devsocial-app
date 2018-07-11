@@ -1,4 +1,4 @@
-import {SET_CURRENT_USER} from "../../actions/authentication/types"
+import {SET_CURRENT_USER, CONFIRM_ACTIVATION} from "../../actions/authentication/types"
 import isEmpty from "../../utils/validation/isEmpty"
 const initialState = {
     isAuthenticated : false,
@@ -12,6 +12,11 @@ export default function(state = initialState, action){
             ...state,
             isAuthenticated : !isEmpty(action.payload),
             user : action.payload
+        }
+        case CONFIRM_ACTIVATION:
+        return{
+            ...state,
+            payload : action.payload
         }
         default:
             return state;

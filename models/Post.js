@@ -50,6 +50,18 @@ const PostSchema = new Schema({
   date: {
     type: Date,
     default: Date.now
+  },
+  isActive:{
+    type : Boolean,
+    default : true
+  },
+  createdAt:{
+    type: Date,
+    default: Date.now
+  },
+  modifiedAt : {
+    type : Date,
+    default : null
   }
 });
 

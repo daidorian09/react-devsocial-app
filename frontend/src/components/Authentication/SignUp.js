@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import propTypes from 'prop-types'
 import {withRouter} from 'react-router-dom'
+import isEmpty from '../../utils/validation/isEmpty'
+
+import {PASSWORD_LENGTH, EMAIL_REGEX} from '../../utils/config/signupConfig'
 
 
 import {connect} from 'react-redux'
@@ -36,16 +39,59 @@ export class SignUp extends Component {
   }
 
   onSubmit(event) {
-    event.preventDefault()    
+    event.preventDefault()   
 
-    const newUser = {
-      name : this.state.name,
-      email : this.state.email,
-      password : this.state.password,
-      confirmPassword : this.state.confirmPassword
+    const isFormInputsValid =  this.validateSignUpFormInputs()
+
+    if (isFormInputsValid) {
+      const newUser = {
+        name: this.state.name,
+        email: this.state.email,
+        password: this.state.password,
+        confirmPassword: this.state.confirmPassword
+      }
+
+      this.props.signUp(newUser, this.props.history)
+    }
+  }
+
+  validateSignUpFormInputs() {
+    const {
+      name,
+      email,
+      password,
+      confirmPassword
+    } = this.state
+    let errors = {}
+
+    if (isEmpty(name)) {
+      errors.name = "Name field is required";
     }
 
-    this.props.signUp(newUser, this.props.history)
+    if (isEmpty(email)) {
+      errors.email = "Email field is required";
+    }
+
+    if (!isEmpty(email)) {
+      const emailRegex = new RegExp(EMAIL_REGEX)
+      if (!emailRegex.test(email)) {
+        errors.email = "Email address in invalid format";
+      }
+    }
+
+    if (isEmpty(password) || password.length < PASSWORD_LENGTH) {
+      errors.password = `Password requires ${PASSWORD_LENGTH} characters long`
+    }
+
+    if (password !== confirmPassword) {
+      errors.confirmPassword = `Password fields are not match`
+    }
+
+    this.setState({
+      errors: errors
+    })
+
+    return isEmpty(errors)
   }
 
   componentWillReceiveProps(nextProps){
@@ -95,11 +141,11 @@ export class SignUp extends Component {
                 />
                 <TextFieldGroup
                   placeholder="Confirm Password"
-                  name="password2"
+                  name="confirmPassword"
                   type="password"
-                  value={this.state.password2}
+                  value={this.state.confirmPassword}
                   onChange={this.onChange}
-                  error={errors.password2}
+                  error={errors.confirmPassword}
                 />
                 <input type="submit" className="btn btn-info btn-block mt-4" />
               </form>

@@ -31,8 +31,12 @@ class Navbar extends Component{
 
       const authRequiredLinks = (                
         <ul className="navbar-nav ml-auto">
+        <li className="nav-item">
+          <Link className="nav-link" to="/dashboard">My Profile</Link>
+        </li>
           <li className="nav-item">       
-          <a href="#" 
+          <Link
+            to = "/"
             onClick={this.onSignOut} 
             className="nav-link">
             <img 
@@ -42,7 +46,7 @@ class Navbar extends Component{
             title="Gravar required to be conntected to your email"
             style={{width:"25px", marginRight:"5px"}}/>
             Sign Out
-          </a>   
+          </Link>   
           </li>
         </ul>
       )
@@ -69,7 +73,7 @@ class Navbar extends Component{
                 <div className="collapse navbar-collapse" id="mobile-nav">
                   <ul className="navbar-nav mr-auto">
                     <li className="nav-item">
-                      <Link className="nav-link" to="/profiles"> Developers
+                      <Link className="nav-link" to="/developers"> Developers
                       </Link>
                     </li>
                   </ul>

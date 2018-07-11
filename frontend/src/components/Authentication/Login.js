@@ -4,7 +4,12 @@ import propTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {signIn} from "../../actions/authentication/auth"
 
+import isEmpty from '../../utils/validation/isEmpty'
+import {PASSWORD_LENGTH, EMAIL_REGEX} from '../../utils/config/signupConfig'
+
 import TextFieldGroup from "../Shared/TextFieldGroup"
+
+import Error from '../Error/Error'
 
 export class Login extends Component {
 
@@ -26,15 +31,18 @@ export class Login extends Component {
       }
 
       onSubmit(event) {
-        event.preventDefault()    
-    
-        const login = {
-          email : this.state.email,
-          password : this.state.password
-        }
+        event.preventDefault()
 
-        this.props.signIn(login)
-    
+        const isLoginFormValid = this.validateLoginFormInputs()
+
+        if (isLoginFormValid) {
+          const login = {
+            email: this.state.email,
+            password: this.state.password
+          }
+
+          this.props.signIn(login)
+        }
       }
 
       componentWillMount(){
@@ -55,12 +63,43 @@ export class Login extends Component {
           })
         }
       }
+
+      validateLoginFormInputs() {
+        const {
+          email,
+          password
+        } = this.state
+        let errors = {}
+
+        if (isEmpty(email)) {
+          errors.email= "Email field is required";
+        }
+
+        if (!isEmpty(email)) {
+          const emailRegex = new RegExp(EMAIL_REGEX)
+          if (!emailRegex.test(email)) {
+            errors.email = "Email address in invalid format";
+          }
+        }
+
+        if (isEmpty(password) || password.length < PASSWORD_LENGTH) {
+          errors.password = `Password requires ${PASSWORD_LENGTH} characters long`
+        }
+
+        this.setState({
+          errors: errors,
+        })
+
+        return isEmpty(errors)
+
+      }
     
 
       render() {
-        const { errors } = this.state;
+        const { errors } = this.state
     
         return (
+
           <div className="login">
             <div className="container">
               <div className="row">
@@ -86,10 +125,15 @@ export class Login extends Component {
                       value={this.state.password}
                       onChange={this.onChange}
                       error={errors.password}
-                    />
+                    />                
+                   
                     <input type="submit" className="btn btn-info btn-block mt-4" />
-                  </form>
+                  </form>    
+                {
+                    errors.isActive && <Error errorMessage = {errors.isActive} />
+                }         
                 </div>
+               
               </div>
             </div>
           </div>
