@@ -177,7 +177,7 @@ module.exports = (app) => {
   // @desc    Return token activation result
   // @access  Public
 
-  app.post('/api/users/confirmactionvation', (req, res) => {
+  app.post('/api/users/confirmactivation', (req, res) => {
     const {
       errors,
       isValid
@@ -234,7 +234,13 @@ module.exports = (app) => {
           return res.status(200).json({
             token: user.isActive
           })
-        }).catch(err => res.status(500).json(err))
-      }).catch(err => res.status(500).json(err))
+        }).catch(err => {
+          errors.token = err
+          res.status(500).json(errors)
+        })
+      }).catch(err => {
+        errors.token = err
+        res.status(500).json(errors)
+      })
   });
 }
